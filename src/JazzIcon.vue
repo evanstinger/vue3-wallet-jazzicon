@@ -34,18 +34,60 @@ const props = withDefaults(defineProps<JazzIconProps>(), {
 
 const jazziconRef = ref<HTMLElement>()
 
-// Simple PRNG implementation to replace mersenne-twister
-class SimpleRandom {
-  private seed: number
+// Mersenne Twister implementation to match original JazzIcon
+class MersenneTwister {
+  private mt: number[] = new Array(624)
+  private mti: number = 625
 
-  constructor(seed: number) {
-    this.seed = seed % 2147483647
-    if (this.seed <= 0) this.seed += 2147483646
+  constructor(seed?: number) {
+    if (seed === undefined) {
+      seed = new Date().getTime()
+    }
+    this.init_genrand(seed)
+  }
+
+  private init_genrand(s: number): void {
+    this.mt[0] = s >>> 0
+    for (this.mti = 1; this.mti < 624; this.mti++) {
+      s = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30)
+      this.mt[this.mti] = (((((s & 0xffff0000) >>> 16) * 1812433253) << 16) + (s & 0x0000ffff) * 1812433253) + this.mti
+      this.mt[this.mti] >>>= 0
+    }
   }
 
   random(): number {
-    this.seed = (this.seed * 16807) % 2147483647
-    return (this.seed - 1) / 2147483646
+    let y: number
+    const mag01 = [0x0, 0x9908b0df]
+
+    if (this.mti >= 624) {
+      let kk: number
+
+      if (this.mti === 625) {
+        this.init_genrand(5489)
+      }
+
+      for (kk = 0; kk < 227; kk++) {
+        y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff)
+        this.mt[kk] = this.mt[kk + 397] ^ (y >>> 1) ^ mag01[y & 0x1]
+      }
+      for (; kk < 623; kk++) {
+        y = (this.mt[kk] & 0x80000000) | (this.mt[kk + 1] & 0x7fffffff)
+        this.mt[kk] = this.mt[kk - 227] ^ (y >>> 1) ^ mag01[y & 0x1]
+      }
+      y = (this.mt[623] & 0x80000000) | (this.mt[0] & 0x7fffffff)
+      this.mt[623] = this.mt[396] ^ (y >>> 1) ^ mag01[y & 0x1]
+
+      this.mti = 0
+    }
+
+    y = this.mt[this.mti++]
+
+    y ^= y >>> 11
+    y ^= (y << 7) & 0x9d2c5680
+    y ^= (y << 15) & 0xefc60000
+    y ^= y >>> 18
+
+    return (y >>> 0) * (1.0 / 4294967296.0)
   }
 }
 
@@ -122,37 +164,44 @@ function addressToNumber(address: string): number {
 const containerStyle = computed((): CSSProperties => ({
   width: `${props.diameter}px`,
   height: `${props.diameter}px`,
-  borderRadius: `${props.diameter / 2}px`,
+  borderRadius: '50px',
   overflow: 'hidden',
   display: 'inline-block',
-  padding: '0',
-  margin: '0'
+  padding: '0px',
+  margin: '0px'
 }))
 
-function hueShift(colors: string[], generator: SimpleRandom): string[] {
+function hueShift(colors: string[], generator: MersenneTwister): string[] {
   const wobble = 30
   const amount = generator.random() * 30 - wobble / 2
   return colors.map(hex => rotateHue(hex, amount))
 }
 
-function genColor(colors: string[], generator: SimpleRandom): string {
+function genColor(colors: string[], generator: MersenneTwister): string {
+  const rand = generator.random()
   const idx = Math.floor(colors.length * generator.random())
   return colors.splice(idx, 1)[0]
 }
 
 function generateIdenticon(diameter: number, seed: number): HTMLElement {
-  const generator = new SimpleRandom(seed)
+  const generator = new MersenneTwister(seed)
   const remainingColors = hueShift([...props.colors], generator)
   
   const container = document.createElement('div')
+  container.style.borderRadius = '50px'
+  container.style.overflow = 'hidden'
+  container.style.padding = '0px'
+  container.style.margin = '0px'
   container.style.width = `${diameter}px`
   container.style.height = `${diameter}px`
+  container.style.display = 'inline-block'
   container.style.background = genColor(remainingColors, generator)
   
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  svg.setAttribute('width', diameter.toString())
-  svg.setAttribute('height', diameter.toString())
-  svg.setAttribute('viewBox', `0 0 ${diameter} ${diameter}`)
+  svg.setAttributeNS(null, 'x', '0')
+  svg.setAttributeNS(null, 'y', '0')
+  svg.setAttributeNS(null, 'width', diameter.toString())
+  svg.setAttributeNS(null, 'height', diameter.toString())
   
   container.appendChild(svg)
   
@@ -169,21 +218,23 @@ function genShape(
   i: number,
   total: number,
   svg: SVGElement,
-  generator: SimpleRandom
+  generator: MersenneTwister
 ): void {
   const center = diameter / 2
   const shape = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
   
-  shape.setAttribute('x', '0')
-  shape.setAttribute('y', '0')
-  shape.setAttribute('width', diameter.toString())
-  shape.setAttribute('height', diameter.toString())
+  shape.setAttributeNS(null, 'x', '0')
+  shape.setAttributeNS(null, 'y', '0')
+  shape.setAttributeNS(null, 'width', diameter.toString())
+  shape.setAttributeNS(null, 'height', diameter.toString())
   
   const firstRot = generator.random()
   const angle = Math.PI * 2 * firstRot
-  const velocity = (diameter / total) * generator.random() + (i * diameter) / total
+  const velocity = diameter / total * generator.random() + (i * diameter / total)
+  
   const tx = Math.cos(angle) * velocity
   const ty = Math.sin(angle) * velocity
+  
   const translate = `translate(${tx} ${ty})`
   
   const secondRot = generator.random()
@@ -191,8 +242,9 @@ function genShape(
   const rotate = `rotate(${rot.toFixed(1)} ${center} ${center})`
   const transform = `${translate} ${rotate}`
   
-  shape.setAttribute('transform', transform)
-  shape.setAttribute('fill', genColor(remainingColors, generator))
+  shape.setAttributeNS(null, 'transform', transform)
+  const fill = genColor(remainingColors, generator)
+  shape.setAttributeNS(null, 'fill', fill)
   
   svg.appendChild(shape)
 }
