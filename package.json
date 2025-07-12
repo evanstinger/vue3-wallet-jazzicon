@@ -1,0 +1,48 @@
+{
+  "name": "vue3-wallet-jazzicon",
+  "version": "1.0.0",
+  "description": "A modern Vue 3 component for generating wallet address jazzy identicons (ala Metamask)",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "jazzicon",
+    "identicon",
+    "wallet",
+    "ethereum",
+    "avatar",
+    "component"
+  ],
+  "author": "Evan Stinger",
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vue": "^3.3.0",
+    "vue-tsc": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evanstinger/vue3-wallet-jazzicon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/evanstinger/vue3-wallet-jazzicon/issues"
+  },
+  "homepage": "https://github.com/evanstinger/vue3-wallet-jazzicon#readme"
+}
