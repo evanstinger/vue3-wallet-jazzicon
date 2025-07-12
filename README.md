@@ -16,13 +16,13 @@ A modern Vue 3 component for generating beautiful, deterministic wallet address 
 
 ```bash
 # npm
-npm install vue3-wallet-jazzicon
+npm install @evanstinger/vue3-wallet-jazzicon
 
 # yarn
-yarn add vue3-wallet-jazzicon
+yarn add @evanstinger/vue3-wallet-jazzicon
 
 # pnpm
-pnpm add vue3-wallet-jazzicon
+pnpm add @evanstinger/vue3-wallet-jazzicon
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ pnpm add vue3-wallet-jazzicon
 
 ```typescript
 import { createApp } from 'vue'
-import JazzIcon from 'vue3-wallet-jazzicon'
+import JazzIcon from '@evanstinger/vue3-wallet-jazzicon'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -49,7 +49,7 @@ app.mount('#app')
 </template>
 
 <script setup lang="ts">
-import { JazzIcon } from 'vue3-wallet-jazzicon'
+import { JazzIcon } from '@evanstinger/vue3-wallet-jazzicon'
 
 const walletAddress = '0x742d35Cc6634C0532925a3b8D4C9db96590e4CAF'
 </script>
@@ -67,7 +67,7 @@ const walletAddress = '0x742d35Cc6634C0532925a3b8D4C9db96590e4CAF'
 </template>
 
 <script setup lang="ts">
-import JazzIcon from 'vue3-wallet-jazzicon/src/JazzIcon.vue'
+import JazzIcon from '@evanstinger/vue3-wallet-jazzicon/src/JazzIcon.vue'
 
 const address = '0x742d35Cc6634C0532925a3b8D4C9db96590e4CAF'
 </script>
@@ -155,7 +155,7 @@ const customColors = [
 The component is built with TypeScript and includes full type definitions:
 
 ```typescript
-import type { JazzIconProps } from 'vue3-wallet-jazzicon'
+import type { JazzIconProps } from '@evanstinger/vue3-wallet-jazzicon'
 
 interface JazzIconProps {
   seed?: number
