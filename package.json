@@ -1,6 +1,6 @@
 {
-  "name": "vue3-wallet-jazzicon",
-  "version": "1.0.0",
+  "name": "@evanstinger/vue3-wallet-jazzicon",
+  "version": "1.0.1",
   "description": "A modern Vue 3 component for generating wallet address jazzy identicons (ala Metamask)",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
