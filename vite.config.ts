@@ -20,7 +20,7 @@ export default defineConfig({
       entry: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/index.ts'),
       name: 'Vue3WalletJazzicon',
       fileName: (format) => `index.${format === 'es' ? 'esm' : format}.js`,
-      formats: ['es', 'umd']
+      formats: ['es', 'cjs', 'umd']
     },
     rollupOptions: {
       external: ['vue'],
